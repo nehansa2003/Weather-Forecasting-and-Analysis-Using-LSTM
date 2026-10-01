@@ -32,7 +32,7 @@ from utils.styling import (
 # ================================================================
 
 st.set_page_config(
-    page_title="LSTM Model Results",
+    page_title="Model Results",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -102,7 +102,7 @@ with st.sidebar:
 
     st.markdown(
         """
-        # 🤖 LSTM Model
+        # 🤖 Models
         """
     )
 
@@ -135,8 +135,8 @@ with st.sidebar:
         **🔮 Forecast Horizon**  
         1 hour
 
-        **🤖 Model**  
-        LSTM
+        **🤖 Models**  
+        LSTM, LightGBM, RF Classifier
 
         **🎯 Outputs**  
         9 Weather Variables
@@ -187,7 +187,7 @@ with st.sidebar:
 # ================================================================
 
 show_hero(
-    "Colombo LSTM Weather Forecasting Model",
+    "Colombo Weather Forecasting Model",
     "Model architecture, training process, evaluation results and prediction performance",
     "🤖"
 )
@@ -199,7 +199,7 @@ show_hero(
 
 section_header(
     "Model Overview",
-    "Summary of the Colombo district LSTM forecasting experiment."
+    "Summary of the Colombo district LSTM forecasting experiment and rainfall forecasting experiment using a Random Forest Classifier and LightGBM Regressor.",
 )
 
 
@@ -248,7 +248,7 @@ with col4:
 
 section_header(
     "Model Dataset",
-    "The LSTM model was trained using hourly observations from the Colombo district.",
+    "The LSTM and LightGBM models were trained using hourly observations from the Colombo district.",
     "📊"
 )
 
@@ -597,7 +597,7 @@ with col4:
 
     metric_card(
         "🧪",
-        "96,360",
+        "96,060",
         "Validation Sequences"
     )
 
@@ -1110,71 +1110,234 @@ for i in range(
 
 
 # ================================================================
-# RAIN / NO-RAIN PERFORMANCE
+# RAIN / NO-RAIN CLASSIFICATION PERFORMANCE
 # ================================================================
 
 section_header(
-    "Rain / No-Rain Performance",
-    "Classification performance obtained by converting rainfall predictions into rain/no-rain categories.",
+    "Rain / No-Rain Classification Performance",
+    "Comparison of classification performance for rainfall occurrence prediction using Random Forest, XGBoost and LightGBM.",
     "🌧️"
 )
 
+classification_df = pd.DataFrame(
+    {
+        "Model": [
+            "Random Forest",
+            "XGBoost",
+            "LightGBM"
+        ],
+        "Precision": [
+            0.7885,
+            0.6723,
+            0.7636
+        ],
+        "Recall": [
+            0.8231,
+            0.9086,
+            0.7897
+        ],
+        "F1-Score": [
+            0.8054,
+            0.7728,
+            0.7764
+        ],
+        "ROC-AUC": [
+            0.9007,
+            0.8897,
+            0.8823
+        ]
+    }
+)
+
+st.dataframe(
+    classification_df.style.format(
+        {
+            "Precision": "{:.4f}",
+            "Recall": "{:.4f}",
+            "F1-Score": "{:.4f}",
+            "ROC-AUC": "{:.4f}"
+        }
+    ),
+    use_container_width=True,
+    hide_index=True
+)
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 col1, col2, col3, col4 = st.columns(4)
 
-
 with col1:
-
     metric_card(
         "🎯",
-        "72.51%",
-        "Accuracy"
+        "90.07%",
+        "RF ROC-AUC"
     )
-
 
 with col2:
-
     metric_card(
         "🔵",
-        "63.52%",
-        "Precision"
+        "78.85%",
+        "RF Precision"
     )
-
 
 with col3:
-
     metric_card(
         "🟢",
-        "86.15%",
-        "Recall"
+        "82.31%",
+        "RF Recall"
     )
-
 
 with col4:
-
     metric_card(
         "⭐",
-        "73.13%",
-        "F1 Score"
+        "80.54%",
+        "RF F1-Score"
     )
 
 
 # ================================================================
-# CONFUSION MATRIX
+# RAINFALL MODEL COMBINATION PERFORMANCE
 # ================================================================
 
-# # ================================================================
-# CONFUSION MATRIX
+section_header(
+    "Rainfall Model Combination Performance",
+    "Performance of the two-stage rainfall prediction system using different classifier and regression model combinations.",
+    "🔄"
+)
+
+combination_df = pd.DataFrame(
+    {
+        "Combination": [
+            "RF + RF",
+            "RF + XGB",
+            "RF + LGBM",
+            "XGB + RF",
+            "XGB + XGB",
+            "XGB + LGBM",
+            "LGBM + RF",
+            "LGBM + XGB",
+            "LGBM + LGBM"
+        ],
+        "F1": [
+            0.8054,
+            0.8054,
+            0.8054,
+            0.7728,
+            0.7728,
+            0.7728,
+            0.7764,
+            0.7764,
+            0.7764
+        ],
+        "ROC-AUC": [
+            0.9007,
+            0.9007,
+            0.9007,
+            0.8897,
+            0.8897,
+            0.8897,
+            0.8823,
+            0.8823,
+            0.8823
+        ],
+        "MAE (mm)": [
+            0.2925,
+            0.2710,
+            0.2676,
+            0.3228,
+            0.2929,
+            0.2892,
+            0.2945,
+            0.2733,
+            0.2699
+        ],
+        "RMSE (mm)": [
+            0.7636,
+            0.7140,
+            0.7024,
+            0.7688,
+            0.7142,
+            0.7017,
+            0.7645,
+            0.7179,
+            0.7065
+        ],
+        "R²": [
+            0.4754,
+            0.5413,
+            0.5561,
+            0.4683,
+            0.5412,
+            0.5570,
+            0.4742,
+            0.5363,
+            0.5510
+        ],
+        "Heavy Rain F1": [
+            0.3434,
+            0.4300,
+            0.3906,
+            0.3434,
+            0.4300,
+            0.3906,
+            0.3469,
+            0.4300,
+            0.3906
+        ]
+    }
+)
+
+st.dataframe(
+    combination_df.style.format(
+        {
+            "F1": "{:.4f}",
+            "ROC-AUC": "{:.4f}",
+            "MAE (mm)": "{:.4f}",
+            "RMSE (mm)": "{:.4f}",
+            "R²": "{:.4f}",
+            "Heavy Rain F1": "{:.4f}"
+        }
+    ),
+    use_container_width=True,
+    hide_index=True
+)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    metric_card(
+        "📉",
+        "0.2676 mm",
+        "Lowest MAE - RF + LGBM"
+    )
+
+with col2:
+    metric_card(
+        "📊",
+        "0.5570",
+        "Highest R² - XGB + LGBM"
+    )
+
+with col3:
+    metric_card(
+        "🌧️",
+        "0.4300",
+        "Highest Heavy Rain F1"
+    )
+
+
+# ================================================================
+# RAIN / NO-RAIN CONFUSION MATRIX
 # ================================================================
 
 section_header(
     "Rain / No-Rain Confusion Matrix",
-    "Confusion matrix showing the LSTM model's performance "
-    "in distinguishing between rainfall and non-rainfall conditions.",
+    "Confusion matrix showing the Random Forest Classifier's performance in distinguishing between rainfall and non-rainfall conditions.",
     "🌧️"
 )
 
-# Center the confusion matrix and reduce its size
 col1, col2, col3 = st.columns([1, 2, 1])
 
 with col2:
@@ -1191,14 +1354,163 @@ with col2:
         "Rain / No-Rain classification confusion matrix."
     )
 
+
+# ================================================================
+# GEOGRAPHICAL POINT-WISE EVALUATION
+# ================================================================
+
+section_header(
+    "Geographical Point-wise Evaluation",
+    "LSTM prediction performance across the 11 geographical points within the Colombo District.",
+    "📍"
+)
+
+geo_df = pd.DataFrame(
+    {
+        "Point": [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+        ],
+        "Latitude": [
+            6.85991, 6.85991, 6.85991,
+            6.92710, 6.92710, 6.92710,
+            6.92710, 6.92710,
+            6.99429, 6.99429, 6.99429
+        ],
+        "Longitude": [
+            79.79351, 79.86120, 79.92889,
+            79.72583, 79.79351, 79.86120,
+            79.92889, 79.99657,
+            79.79351, 79.86120, 79.92889
+        ],
+        "Overall Mean R²": [
+            0.8525,
+            0.8518,
+            0.8515,
+            0.7976,
+            0.8525,
+            0.8524,
+            0.8525,
+            0.8338,
+            0.8566,
+            0.8566,
+            0.8566
+        ],
+        "Overall NRMSE": [
+            0.0552,
+            0.0544,
+            0.0545,
+            0.0601,
+            0.0552,
+            0.0552,
+            0.0552,
+            0.0564,
+            0.0546,
+            0.0546,
+            0.0546
+        ],
+        "Overall Accuracy (%)": [
+            94.48,
+            94.56,
+            94.55,
+            93.99,
+            94.48,
+            94.49,
+            94.48,
+            94.36,
+            94.54,
+            94.54,
+            94.54
+        ]
+    }
+)
+
+st.dataframe(
+    geo_df.style.format(
+        {
+            "Latitude": "{:.5f}",
+            "Longitude": "{:.5f}",
+            "Overall Mean R²": "{:.4f}",
+            "Overall NRMSE": "{:.4f}",
+            "Overall Accuracy (%)": "{:.2f}"
+        }
+    ),
+    use_container_width=True,
+    hide_index=True
+)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    metric_card(
+        "📍",
+        "11",
+        "Geographical Points"
+    )
+
+with col2:
+    metric_card(
+        "📈",
+        "94.56%",
+        "Highest Accuracy"
+    )
+
+with col3:
+    metric_card(
+        "📊",
+        "93.99%",
+        "Lowest Accuracy"
+    )
+# ================================================================
+# POINT-WISE OVERALL ACCURACY INDEX CHART
+# ================================================================
+
+st.markdown(
+    """
+    <div class="section-card">
+    <h3>📊 Point-wise Overall Accuracy Index</h3>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+st.image(
+        os.path.join(
+            ASSETS_DIR,
+            "pointwise_overall_accuracy.png"
+        ),
+        use_container_width=True
+    )
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+st.markdown(
+    """
+    <div class="section-card">
+
+    <h3>📌 Geographical Evaluation Summary</h3>
+
+    <p>
+    The LSTM RF+LGBM models was evaluated across 11 geographical points
+    within the Colombo District using unseen 2025 test observations.
+    The overall accuracy index ranged from <b>93.99%</b> to
+    <b>94.56%</b>, indicating relatively consistent prediction
+    performance across the evaluated locations.
+    </p>
+
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # ================================================================
 # FINAL SUMMARY
 # ================================================================
 
 section_header(
-    "Model Summary",
+    "<h3>📌Model Summary</h3>",
     "Overall summary of the Colombo district next-hour forecasting experiment.",
-    "📌"
+    
 )
 
 
@@ -1206,10 +1518,10 @@ st.markdown(
     """
     <div class="section-card">
 
-    <h3>🤖 Colombo LSTM Forecasting System</h3>
+    <h3>🤖 Colombo Weather Forecasting System</h3>
 
     <p>
-    The trained LSTM model uses the previous 24 hours of
+    The trained LSTM and LightGBM models use the previous 24 hours of
     Colombo weather observations to predict nine weather
     variables for the following hour.
     </p>
