@@ -77,9 +77,9 @@ with st.sidebar:
 
     st.write("5 Sri Lankan Districts")
 
-    st.markdown("### 🤖 Model")
+    st.markdown("### 🤖 Models")
 
-    st.write("LSTM")
+    st.write("LSTM\n RFClassifier\n LGBM Regressor")
 
 
 # ================================================================
@@ -205,7 +205,7 @@ with col3:
         "Enter a location within Colombo to find the nearest "
         "predefined weather point, retrieve the previous "
         "24 hours of weather observations and predict the "
-        "next hour using the LSTM model.",
+        "next hour using the LSTM model and LightGBM Regressor.",
         "🤖"
     )
 
